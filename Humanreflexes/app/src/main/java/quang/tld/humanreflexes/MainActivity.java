@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     // Khởi tạo trạng thái mặc định ban đầu là START
     private GameState currentState = GameState.START;
 
-    // Handler dùng để gửi công việc vào luồng giao diện chính (Main Looper) sau một khoảng thời gian trì hoãn
+    // Handler dùng để gửi công việc vào luồng giao diện chính sau một khoảng thời gian trì hoãn
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     // Lưu lại thời điểm (tính bằng mili-giây) khi màn hình vừa chuyển sang màu xanh
@@ -63,6 +63,19 @@ public class MainActivity extends AppCompatActivity {
         // Ánh xạ id từ file activity_main.xml sang biến Java tương ứng
         layoutMain = findViewById(R.id.layoutMain);
         tvStatus = findViewById(R.id.tvStatus);
+
+        // người dùng chạm vào màn hình
+        layoutMain.setOnClickListener(v -> {
+            // nếu game chưa bắt đầu thì bắt cho chơi lượt mới
+            if(currentState == GameState.START){
+                Start();
+
+            }
+            // nếu màn hình chuyển xanh, bắt đầu tính điểm
+            else if(currentState == GameState.READY){
+                Finish();
+            }
+        });
     }
 
     // chạy lượt chơi
@@ -74,7 +87,23 @@ public class MainActivity extends AppCompatActivity {
         // tạo thời gian ramdom 2-5 giây
         int randomDelay = new Random().nextInt(3000) + 2000;
 
-        // hẹn giờ changeColor sau khi randomDelay
+        // đặt khoảnh khắc changeColor sau khi randomDelay
         handler.postDelayed(changeColorRunable, randomDelay);
+    }
+
+    // kết thúc lượt chơi
+    private void Finish(){
+        /* Thời gian phản xạ = Thời gian hệ thống hiện tại
+        trừ Thời điểm màn hình vừa đổi sang màu xanh */
+        long reactionTime = System.currentTimeMillis() - starTime;
+
+        // Đưa trạng thái game trở về START để người chơi có thể chơi lại lượt mới
+        currentState = GameState.START;
+
+        // Đổi nền màn hình sang màu Xanh dương để thông báo hoàn thành
+        layoutMain.setBackgroundColor(Color.parseColor("#1976D2"));
+
+        // Hiển thị kết quả tính bằng mili-giây (ms) lên màn hình
+        tvStatus.setText("Thời gian phản xạ: "+ reactionTime + "ms \nChạm để chơi lại");
     }
 }

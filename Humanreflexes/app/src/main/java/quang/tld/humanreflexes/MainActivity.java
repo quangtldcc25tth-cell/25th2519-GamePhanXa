@@ -60,22 +60,24 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Ánh xạ id từ file activity_main.xml sang biến Java tương ứng
-        layoutMain = findViewById(R.id.layoutMain);
-        tvStatus = findViewById(R.id.tvStatus);
-
-        // người dùng chạm vào màn hình
         layoutMain.setOnClickListener(v -> {
-            // nếu game chưa bắt đầu thì bắt cho chơi lượt mới
-            if(currentState == GameState.START){
-                Start();
-
-            }
-            // nếu màn hình chuyển xanh, bắt đầu tính điểm
-            else if(currentState == GameState.READY){
-                Finish();
+            switch (currentState){
+                case START: Start(); break; // Bắt đầu trò chơi
+                case WAITING: handlerEarlyTap(); break; // nếu bấm quá sớm
+                case READY: Finish(); break; // Bấm chính xác lúc màu xanh
             }
         });
+    }
+
+    private void handlerEarlyTap(){
+        // Hủy bỏ việc đếm ngược (nếu không hủy, màn hình sẽ vẫn tự động đổi sang màu xanh sau đó)
+        handler.removeCallbacks(changeColorRunable);
+        // Đưa trạng thái về lại START
+        currentState = GameState.START;
+        // Đổi nền màn hình sang màu Xám để thông báo người chơi đã phạm quy
+        layoutMain.setBackgroundColor(Color.parseColor("#75757575"));
+        // Cập nhật thông báo lỗi
+        tvStatus.setText("Quá sớm! Chạm để thử lại.");
     }
 
     // chạy lượt chơi
@@ -96,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
         /* Thời gian phản xạ = Thời gian hệ thống hiện tại
         trừ Thời điểm màn hình vừa đổi sang màu xanh */
         long reactionTime = System.currentTimeMillis() - starTime;
-
         // Đưa trạng thái game trở về START để người chơi có thể chơi lại lượt mới
         currentState = GameState.START;
 

@@ -4,14 +4,12 @@ plugins {
 
 android {
     namespace = "quang.tld.humanreflexes"
-    compileSdk {
-        version = release(37)
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "quang.tld.humanreflexes"
         minSdk = 24
-        targetSdk = 37
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
